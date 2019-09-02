@@ -5,8 +5,10 @@ mod flarchitects;
 use std::fs;
 use std::path::PathBuf;
 use clap::{Arg, App};
-use flarchitects::html_template_txt;
+use flarchitects::{html_template_txt, view_template_txt,
+                   init_template_txt};
 use std::io::Write;
+
 
 fn main() {
     let matches = App::new("Flarchitect")
@@ -25,6 +27,18 @@ fn main() {
                     .long("template_name")
                     .takes_value(true)
                     .help("template name"))
+        .arg(Arg::with_name("view_name")
+                    .required(false)
+                    .short("v")
+                    .long("view_name")
+                    .takes_value(true)
+                    .help("view name"))
+        .arg(Arg::with_name("create_env")
+                    .required(false)
+                    .short("e")
+                    .long("create_env")
+                    .takes_value(false)
+                    .help("create a virtual enviroment for flask app"))
         .get_matches();
 
     if matches.is_present("project_name") {
@@ -51,6 +65,24 @@ fn main() {
                                    err),
             };
         }
+
+        if matches.is_present("view_name") {
+            let view_name = matches.value_of("view_name").unwrap();
+            println!("View name: [{}]", view_name);
+            match create_view(project_name, view_name) {
+                Ok(_) => println!("Created view [{}] in project [{}]",
+                                  view_name, project_name),
+                Err(err) => panic!("Error: could not create view, {}", err),
+            };
+        }
+    }
+
+    if matches.is_present("create_env") {
+        match create_venv() {
+            Ok(_) => println!("Created virtual environment for project in dir [{}/env]",
+                              get_cwd()),
+            Err(err) => panic!("Error: could not create virtual environment, {}", err),
+        };
     }
 }
 
@@ -74,10 +106,14 @@ fn create_project_archetype(p_name: &str) -> std::io::Result<()> {
 
     for dir in dirs {
         match fs::create_dir_all(format!("{}/{}/{}", basename, p_name, dir)) {
-            Ok(_) => println!("Creating dir [{}/{}/{}]", basename, p_name, dir),
+            Ok(_) => println!("Created dir [{}/{}/{}]", basename, p_name, dir),
             Err(err) => return Err(err),
         };
     }
+
+    let mut file = fs::File::create(format!("{}/{}/__init__.py",
+                                            get_cwd(), p_name))?;
+    file.write_all(init_template_txt(p_name).as_bytes())?;
 
     Ok(())
 }
@@ -91,6 +127,26 @@ fn create_html_template(p_name: &str, t_name: &str) -> std::io::Result<()> {
     let mut file = fs::File::create(file_path)?;
     file.write_all(html_template_txt(p_name).as_bytes())?;
 
+    Ok(())
+}
+
+
+fn create_view(p_name: &str, v_name: &str) -> std::io::Result<()> {
+    println!("Creating view [{}] in project [{}]", v_name, p_name);
+    let basename = get_cwd();
+    let file_path = PathBuf::from(format!("{}/{}/{}/{}.py",
+                                          basename, p_name, "views", v_name));
+    let mut file = fs::File::create(file_path)?;
+    file.write_all(view_template_txt(p_name, v_name).as_bytes())?;
+    Ok(())
+}
+
+
+fn create_venv() -> std::io::Result<()> {
+    std::process::Command::new("python3")
+                          .args(&["-m", "venv", "env"])
+                          .output()
+                          .expect("failed to create virtual environment...");
     Ok(())
 }
 
