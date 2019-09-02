@@ -1,2 +1,8 @@
 /target
 **/*.rs.bk
+
+env/
+HelloWorld/
+test/
+target/
+bin/
