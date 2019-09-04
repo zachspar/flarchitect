@@ -8,6 +8,7 @@
 extern crate clap;
 
 mod flarchitects;
+mod errors;
 
 use std::fs;
 use std::path::PathBuf;
@@ -15,6 +16,7 @@ use clap::{Arg, App};
 use flarchitects::{html_template_txt, view_template_txt,
                    init_template_txt, run_app_script_txt};
 use std::io::Write;
+use errors::Fluck;
 
 
 fn main() {
