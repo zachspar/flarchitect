@@ -6,3 +6,4 @@ HelloWorld/
 test/
 target/
 bin/
+test*
