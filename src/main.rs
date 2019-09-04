@@ -15,8 +15,6 @@ use clap::{Arg, App};
 use flarchitects::{html_template_txt, view_template_txt,
                    init_template_txt, run_app_script_txt};
 use std::io::Write;
-use std::os::unix::fs::PermissionsExt;
-use std::fs::OpenOptions;
 
 
 fn main() {
@@ -176,7 +174,7 @@ fn create_view(p_name: &str, v_name: &str) -> std::io::Result<()> {
     let basename = get_cwd();
     // add this new view to pre-existing init file
     let init_file_string  = format!("{}/{}/views/__init__.py", basename, p_name);
-    let mut init_file_handle = OpenOptions::new()
+    let mut init_file_handle = std::fs::OpenOptions::new()
         .write(true)
         .append(true)
         .open(init_file_string)
@@ -199,17 +197,25 @@ fn create_venv() -> std::io::Result<()> {
                           .args(&["-m", "venv", "env"])
                           .output()
                           .expect("failed to create virtual environment...");
+    std::process::Command::new(&format!(". ./env/bin/activate"));
     Ok(())
 }
 
 
 fn create_server_script(project_name: &str) -> std::io::Result<()> {
+    /*
+    let path = format!("{}/{}/run_server.sh", get_cwd(), "bin");
+    let mut file = OpenOptions::new()
+                                   .create(true)
+                                   .write(true)
+                                   .mode(0o770)
+                                   .open(&path)
+                                   .unwrap();
+                                   */
+
     let file_path = PathBuf::from(format!("{}/{}/run_server.sh", get_cwd(), "bin"));
-    let mut file = fs::File::create(&file_path)?;
+    let mut file = fs::File::create(file_path)?;
     file.write_all(run_app_script_txt(project_name, &get_cwd()).as_bytes())?;
-    let data = file.metadata()?;
-    data.permissions().set_mode(0o764);
-    fs::set_permissions(file_path, data.permissions())?;
     Ok(())
 }
 
