@@ -14,7 +14,7 @@ mod view_utils;
 mod flarc_utils;
 mod template_utils;
 
-use clap::{Arg, App};
+use clap::{Arg, App, AppSettings};
 use view_utils::{create_view};
 use template_utils::{create_html_template};
 use flarc_utils::{get_cwd, create_venv, create_server_script, create_project_archetype};
@@ -22,10 +22,11 @@ use flarc_utils::{get_cwd, create_venv, create_server_script, create_project_arc
 
 
 fn main() {
-    let matches = App::new("Flarchitect")
+    let app = App::new("Flarchitect")
         .version("0.1.0")
         .author("Zachary Spar <zachspar@gmail.com>")
         .about("Rapid development framework for python-flask apps")
+        .setting(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::with_name("project_name")
             .required(false)
             .short("p")
@@ -55,8 +56,8 @@ fn main() {
             .short("s")
             .long("run_server")
             .takes_value(true)
-            .help("serve flask app on specified environment"))
-        .get_matches();
+            .help("serve flask app on specified environment"));
+    let matches = app.get_matches();
 
     if let Some(project_name) = matches.value_of("project_name") {
 
@@ -104,6 +105,5 @@ fn main() {
             Err(err) => println!("ERROR: could not create virtual environment, {:?}", err),
         };
     }
-    // TODO : print uage command
-    // if zero arguments are provided, print usage
+
 }
