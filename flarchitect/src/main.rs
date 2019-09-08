@@ -3,6 +3,7 @@
  * Rapid development framework for python-flask apps.
  TODO : add .gitignore flarc util !!!
  TODO : add a dot file which will serve as configurations for Flarchitect
+ ******* NOTE TODO THIS INVOLVES CREATING A FUCKING ENV VARIABLE OF PROJECT ROOT MORON!!!!!!
  *
  * Author: Zachary Spar
  * Email : zachspar@gmail.com
@@ -17,6 +18,7 @@ use clap::{Arg, App};
 use view_utils::{create_view};
 use template_utils::{create_html_template};
 use flarc_utils::{get_cwd, create_venv, create_server_script, create_project_archetype};
+use crate::flarc_utils::create_gitignore;
 
 
 fn main() {
@@ -68,9 +70,15 @@ fn main() {
                 Err(err) => panic!("ERROR: could not create project architecture, {:?}", err),
             };
 
+            // TODO : this is a VERY dangerous thing, as it overwrites my project gitignore lol :(
+//            match create_gitignore(project_name) {
+//                Ok(msg) => println!("{}", msg),
+//                Err(err) => println!("ERROR: could not create .gitignore file, {:?}", err),
+//            }
+
             match create_server_script(project_name) {
                 Ok(msg) => println!("{}", msg),
-                Err(err) => println!("ERROR: could not create server script, {}", err),
+                Err(err) => println!("ERROR: could not create server script, {:?}", err),
             };
 
         }
@@ -81,7 +89,7 @@ fn main() {
             let template_name = matches.value_of("template_name").unwrap();
             match create_html_template(project_name, template_name) {
                 Ok(msg) => println!("{}", msg),
-                Err(err) => println!("ERROR: could not create HTML template, {}", err),
+                Err(err) => println!("ERROR: could not create HTML template, {:?}", err),
             };
         }
 
@@ -90,7 +98,7 @@ fn main() {
             let view_name = matches.value_of("view_name").unwrap();
             match create_view(project_name, view_name) {
                 Ok(msg) => println!("{}", msg),
-                Err(err) => println!("ERROR: could not create view, {}", err),
+                Err(err) => println!("ERROR: could not create view, {:?}", err),
             };
         }
     }
@@ -98,7 +106,7 @@ fn main() {
     if matches.is_present("create_env") {
         match create_venv() {
             Ok(msg) => println!("{}", msg),
-            Err(err) => println!("ERROR: could not create virtual environment, {}", err),
+            Err(err) => println!("ERROR: could not create virtual environment, {:?}", err),
         };
     }
 }

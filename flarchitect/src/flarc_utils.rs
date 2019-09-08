@@ -62,6 +62,7 @@ pub(crate) fn setup_app_txt(app_name: &str) -> String {
 }
 
 
+// TODO convert to using project root
 pub(crate) fn get_cwd() -> String {
     let cwd = std::env::current_dir().unwrap();
     let basename = cwd.into_os_string().into_string().unwrap();
@@ -69,6 +70,7 @@ pub(crate) fn get_cwd() -> String {
 }
 
 
+// TODO convert to using project root
 pub(crate) fn create_server_script(project_name: &str) -> std::io::Result<String> {
     let server_filename = format!("{}/{}/run_server.sh", get_cwd(), "bin");
     let file_path = std::path::PathBuf::from(&server_filename);
@@ -82,8 +84,8 @@ pub(crate) fn create_server_script(project_name: &str) -> std::io::Result<String
 
     match set_permissions(&server_filename, permissions) {
         Ok(_) => println!("Changed permission of file [{}] to executable", &server_filename),
-        Err(err) => println!("ERROR: could not change permission of file [{}], {}",
-                             &server_filename, err)
+        Err(err) => println!("ERROR: could not change permission of file [{}], {:?}",
+                             &server_filename, err),
     };
 
     Ok(String::from(format!("Created run server script [ {} ] for project [ {} ]",
@@ -91,6 +93,7 @@ pub(crate) fn create_server_script(project_name: &str) -> std::io::Result<String
 }
 
 
+// TODO convert to using project root
 pub(crate) fn create_venv() -> std::io::Result<String> {
     std::process::Command::new("python3")
                           .args(&["-m", "venv", "env"])
@@ -100,6 +103,7 @@ pub(crate) fn create_venv() -> std::io::Result<String> {
 }
 
 
+// TODO convert to using project root
 pub(crate) fn create_project_archetype(p_name: &str) -> std::io::Result<String> {
     println!("Creating project architecture for: [{}]", p_name);
     let dirs = vec!["views", "templates", "static"];
@@ -108,7 +112,7 @@ pub(crate) fn create_project_archetype(p_name: &str) -> std::io::Result<String> 
     match std::fs::create_dir_all(format!("{}/{}", basename, "bin")) {
         Ok(_) => println!("Created dir: [{}/{}] in for project [ {} ]", basename, "bin", p_name),
         Err(err) => {
-            println!("ERROR: cannot create bin directory, {}", err);
+            println!("ERROR: cannot create bin directory, {:?}", err);
         }
     };
 
@@ -116,9 +120,9 @@ pub(crate) fn create_project_archetype(p_name: &str) -> std::io::Result<String> 
         match std::fs::create_dir_all(format!("{}/{}/{}", basename, p_name, dir)) {
             Ok(_) => println!("Created dir [{}/{}/{}]", basename, p_name, dir),
             Err(err) => {
-                println!("ERROR: cannot create directories [ static | views | templates ], {}",
+                println!("ERROR: cannot create directories [ static | views | templates ], {:?}",
                          err);
-            }
+            },
         };
     }
 
@@ -137,4 +141,15 @@ pub(crate) fn create_project_archetype(p_name: &str) -> std::io::Result<String> 
     println!("create_project_archetype :: Created setup.py file for project");
 
     Ok(String::from(format!("Created project architecture for [{}]", p_name)))
+}
+
+
+// TODO convert to using project root
+pub(crate) fn create_gitignore(p_name: &str) -> std::io::Result<String> {
+    let string = "env/\n.DS_Store\n__pycache__/\n*.pyc";
+    let gitignore = String::from(string);
+    println!("Creating .gitignore file for project [{}]", p_name);
+    let mut file = std::fs::File::create(format!("{}/.gitignore", get_cwd()))?;
+    file.write_all(gitignore.as_bytes())?;
+    Ok(String::from(format!("Created .gitignore file for project [ {} ]", p_name)))
 }
