@@ -18,7 +18,7 @@ use clap::{Arg, App};
 use view_utils::{create_view};
 use template_utils::{create_html_template};
 use flarc_utils::{get_cwd, create_venv, create_server_script, create_project_archetype};
-use crate::flarc_utils::create_gitignore;
+//use crate::flarc_utils::create_gitignore; // DANGEROUS AF
 
 
 fn main() {
@@ -32,7 +32,7 @@ fn main() {
             .long("project_name")
             .takes_value(true)
             .help("project name"))
-        .arg(Arg::with_name("template_name")
+        .arg(Arg::with_name("template_name") // TODO : add subcommand custom input template
             .required(false)
             .short("t")
             .long("template_name")
@@ -58,12 +58,9 @@ fn main() {
             .help("serve flask app on specified environment"))
         .get_matches();
 
-    if matches.is_present("project_name") {
-        let project_name = matches
-            .value_of("project_name")
-            .unwrap();
+    if let Some(project_name) = matches.value_of("project_name") {
 
-        if !std::path::Path::new(&format!("{}/{}", get_cwd(), project_name)).exists() {
+        if ! std::path::Path::new(&format!("{}/{}", get_cwd(), project_name)).exists() {
 
             match create_project_archetype(project_name) {
                 Ok(msg) => println!("{}", msg),
@@ -85,8 +82,7 @@ fn main() {
 
         // TODO : will incorporate subcommand to load new template name into system
         // --> this also will require finding patterns within templates
-        if matches.is_present("template_name") {
-            let template_name = matches.value_of("template_name").unwrap();
+        if let Some(template_name) = matches.value_of("template_name") {
             match create_html_template(project_name, template_name) {
                 Ok(msg) => println!("{}", msg),
                 Err(err) => println!("ERROR: could not create HTML template, {:?}", err),
@@ -94,8 +90,7 @@ fn main() {
         }
 
         // TODO : see above for template param... needs to match specification
-        if matches.is_present("view_name") {
-            let view_name = matches.value_of("view_name").unwrap();
+        if let Some(view_name) = matches.value_of("view_name") {
             match create_view(project_name, view_name) {
                 Ok(msg) => println!("{}", msg),
                 Err(err) => println!("ERROR: could not create view, {:?}", err),
@@ -109,4 +104,6 @@ fn main() {
             Err(err) => println!("ERROR: could not create virtual environment, {:?}", err),
         };
     }
+    // TODO : print uage command
+    // if zero arguments are provided, print usage
 }

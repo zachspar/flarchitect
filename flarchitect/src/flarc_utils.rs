@@ -7,7 +7,7 @@
     Author: Zachary Spar <zachspar@gmail.com>
 */
 use std::io::Write;
-use std::fs::set_permissions;
+use std::fs::{set_permissions};
 use std::os::unix::fs::PermissionsExt;
 
 
@@ -20,8 +20,10 @@ pub(crate) fn html_template_txt(app_name: &str) -> String {
 
 pub(crate) fn view_template_txt(app_name: &str, view_name: &str) -> String {
     let ret_string = format!("from flask import render_template\n\
-                              import {}\n@{}.app.route('/{}/<string:name>', methods=[\"GET\", \"POST\"])\n\
-                              def {}(name):\n    context = {{'greeting': 'Hello {{}}'.format(name)}}\
+                              import {}\n@{}.app.route('/{}/<string:name>', \
+                              methods=[\"GET\", \"POST\"])\n\
+                              def {}(name):\n    context = {{'greeting': \
+                              'Hello {{}}'.format(name)}}\
                               \n    return render_template('{}.html', **context)\n",
                              app_name, app_name, view_name, view_name, view_name);
     String::from(ret_string)
@@ -56,9 +58,11 @@ pub(crate) fn run_app_script_txt(app_name: &str, cwd: &String) -> String {
 pub(crate) fn setup_app_txt(app_name: &str) -> String {
     let spaces = "    ";
     String::from(format!("from setuptools import setup\n\
-    \nsetup(\n{}name=\"{}\",\n{}version=\"1.0\",\n{}long_description=__doc__,\n{}packages=[\"{}\"],\
+    \nsetup(\n{}name=\"{}\",\n{}version=\"1.0\",\n{}long_description=__doc__,\n\
+    {}packages=[\"{}\"],\
     \n{}include_package_data=True,\n{}zip_safe=False,\n{}install_requires=['Flask',]\n)\n\n",
-                         spaces, app_name, spaces, spaces, spaces, app_name, spaces, spaces, spaces))
+                         spaces, app_name, spaces, spaces, spaces, app_name, spaces, spaces,
+                         spaces))
 }
 
 
