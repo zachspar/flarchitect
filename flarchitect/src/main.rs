@@ -1,6 +1,8 @@
 /* Flarchitect CLI
  *
  * Rapid development framework for python-flask apps.
+ TODO : add .gitignore flarc util !!!
+ TODO : add a dot file which will serve as configurations for Flarchitect
  *
  * Author: Zachary Spar
  * Email : zachspar@gmail.com
@@ -73,6 +75,8 @@ fn main() {
 
         }
 
+        // TODO : will incorporate subcommand to load new template name into system
+        // --> this also will require finding patterns within templates
         if matches.is_present("template_name") {
             let template_name = matches.value_of("template_name").unwrap();
             match create_html_template(project_name, template_name) {
@@ -81,6 +85,7 @@ fn main() {
             };
         }
 
+        // TODO : see above for template param... needs to match specification
         if matches.is_present("view_name") {
             let view_name = matches.value_of("view_name").unwrap();
             match create_view(project_name, view_name) {

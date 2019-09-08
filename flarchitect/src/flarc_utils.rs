@@ -7,6 +7,8 @@
     Author: Zachary Spar <zachspar@gmail.com>
 */
 use std::io::Write;
+use std::fs::set_permissions;
+use std::os::unix::fs::PermissionsExt;
 
 
 pub(crate) fn html_template_txt(app_name: &str) -> String {
@@ -67,23 +69,33 @@ pub(crate) fn get_cwd() -> String {
 }
 
 
-// TODO : need to somehow change the mode of the server script to be exec
 pub(crate) fn create_server_script(project_name: &str) -> std::io::Result<String> {
     let server_filename = format!("{}/{}/run_server.sh", get_cwd(), "bin");
     let file_path = std::path::PathBuf::from(&server_filename);
     let mut file = std::fs::File::create(file_path)?;
     file.write_all(run_app_script_txt(project_name, &get_cwd()).as_bytes())?;
-    Ok(String::from("Created run server script"))
+    let metadata = file.metadata()?;
+    let mut permissions = metadata.permissions();
+
+    permissions.set_mode(0o755); // Read/write/exec for owner and read for others.
+    println!("Changing permissions of server script to exe");
+
+    match set_permissions(&server_filename, permissions) {
+        Ok(_) => println!("Changed permission of file [{}] to executable", &server_filename),
+        Err(err) => println!("ERROR: could not change permission of file [{}], {}",
+                             &server_filename, err)
+    };
+
+    Ok(String::from(format!("Created run server script [ {} ] for project [ {} ]",
+                            server_filename, project_name)))
 }
 
 
 pub(crate) fn create_venv() -> std::io::Result<String> {
     std::process::Command::new("python3")
-        .args(&["-m", "venv", "env"])
-        .output()
-        .expect("failed to create virtual environment...");
-    std::process::Command::new(&format!(". ./env/bin/activate"));
-    std::process::Command::new("pip install -U pip; pip install -e .");
+                          .args(&["-m", "venv", "env"])
+                          .output()
+                          .expect("failed to create virtual environment...");
     Ok(String::from(format!("Created virtual environment env in directory [ {} ]", get_cwd())))
 }
 
@@ -94,22 +106,29 @@ pub(crate) fn create_project_archetype(p_name: &str) -> std::io::Result<String> 
     let basename = get_cwd();
 
     match std::fs::create_dir_all(format!("{}/{}", basename, "bin")) {
-        Ok(_) => println!("Created dir: [{}/{}", basename, "bin"),
-        Err(err) => return Err(err),
+        Ok(_) => println!("Created dir: [{}/{}] in for project [ {} ]", basename, "bin", p_name),
+        Err(err) => {
+            println!("ERROR: cannot create bin directory, {}", err);
+        }
     };
 
     for dir in dirs {
         match std::fs::create_dir_all(format!("{}/{}/{}", basename, p_name, dir)) {
             Ok(_) => println!("Created dir [{}/{}/{}]", basename, p_name, dir),
-            Err(err) => return Err(err),
+            Err(err) => {
+                println!("ERROR: cannot create directories [ static | views | templates ], {}",
+                         err);
+            }
         };
     }
 
-    let mut file = std::fs::File::create(format!("{}/{}/__init__.py", get_cwd(), p_name))?;
+    let mut file = std::fs::File::create(format!("{}/{}/__init__.py", get_cwd(),
+                                                 p_name))?;
     file.write_all(init_template_txt(p_name, "root").as_bytes())?;
     println!("create_project_archetype :: Created __init__ for root project");
 
-    let mut file = std::fs::File::create(format!("{}/{}/views/__init__.py", get_cwd(), p_name))?;
+    let mut file = std::fs::File::create(format!("{}/{}/views/__init__.py",
+                                                 get_cwd(), p_name))?;
     file.write_all(init_template_txt(p_name, "view").as_bytes())?;
     println!("create_project_archetype :: Created __init__ for views");
 
