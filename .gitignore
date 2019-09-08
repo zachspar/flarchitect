@@ -7,3 +7,7 @@ test/
 target/
 bin/
 test*
+
+setup*
+*.egg-info/
+
