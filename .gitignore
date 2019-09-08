@@ -1,2 +1,12 @@
 /target
 **/*.rs.bk
+
+env/
+HelloWorld/
+test/
+target/
+bin/
+test*
+
+setup*
+*.egg-info/
