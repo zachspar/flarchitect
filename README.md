@@ -1,2 +1,5 @@
 # flarchitect
-quick and easy python3 flask project creation
+rapid development for python flask apps
+
+## install 
+`cargo build`
