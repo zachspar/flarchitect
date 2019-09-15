@@ -3,7 +3,6 @@
  * Rapid development framework for python-flask apps.
  TODO : add .gitignore flarc util !!!
  TODO : add a dot file which will serve as configurations for Flarchitect
- ******* NOTE TODO THIS INVOLVES CREATING A FUCKING ENV VARIABLE OF PROJECT ROOT MORON!!!!!!
  *
  * Author: Zachary Spar
  * Email : zachspar@gmail.com
