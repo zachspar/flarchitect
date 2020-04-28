@@ -8,5 +8,7 @@ target/
 bin/
 test*
 
+.idea/
+
 setup*
 *.egg-info/
