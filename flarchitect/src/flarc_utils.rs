@@ -25,7 +25,7 @@ pub(crate) fn view_template_txt(app_name: &str, view_name: &str) -> String {
                               def {}(name):\n    context = {{'greeting': \
                               'Hello {{}}'.format(name)}}\
                               \n    return render_template('{}.html', **context)\n",
-                             app_name, app_name, view_name, view_name, view_name);
+                              app_name, app_name, view_name, view_name, view_name);
     String::from(ret_string)
 }
 
@@ -70,20 +70,19 @@ pub(crate) fn setup_app_txt(app_name: &str) -> String {
 pub(crate) fn get_cwd() -> String {
     let cwd = std::env::current_dir().unwrap();
     let basename = cwd.into_os_string().into_string().unwrap();
-    return basename;
+    basename
 }
 
 
 // TODO convert to using project root
 pub(crate) fn create_server_script(project_name: &str) -> std::io::Result<String> {
     let server_filename = format!("{}/{}/run_server.sh", get_cwd(), "bin");
-    let file_path = std::path::PathBuf::from(&server_filename);
-    let mut file = std::fs::File::create(file_path)?;
+    let mut file = std::fs::File::create(std::path::PathBuf::from(&server_filename))?;
     file.write_all(run_app_script_txt(project_name, &get_cwd()).as_bytes())?;
     let metadata = file.metadata()?;
     let mut permissions = metadata.permissions();
 
-    permissions.set_mode(0o755); // Read/write/exec for owner and read for others.
+    permissions.set_mode(0o755);
     println!("Changing permissions of server script to exe");
 
     match set_permissions(&server_filename, permissions) {

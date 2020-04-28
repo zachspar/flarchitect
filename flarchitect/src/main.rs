@@ -1,9 +1,10 @@
 /* Flarchitect CLI
  *
  * Rapid development framework for python-flask apps.
- TODO : add .gitignore flarc util !!!
- TODO : add a dot file which will serve as configurations for Flarchitect
- ******* NOTE TODO THIS INVOLVES CREATING A FUCKING ENV VARIABLE OF PROJECT ROOT MORON!!!!!!
+     TODO : add .gitignore flarc util !!!
+     TODO : add a dot file which will serve as configurations for Flarchitect
+     we will be creating a dot dir which will contain a few nested dotted dirs such as
+     .templates  ;  .views  ;  .db  ; etc...
  *
  * Author: Zachary Spar
  * Email : zachspar@gmail.com
@@ -25,7 +26,7 @@ fn main() {
     let app = App::new("Flarchitect")
         .version("0.1.0")
         .author("Zachary Spar <zachspar@gmail.com>")
-        .about("Rapid development framework for python-flask apps")
+        .about("Rapid development framework for small python-flask apps")
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(Arg::with_name("project_name")
             .required(false)
@@ -33,12 +34,24 @@ fn main() {
             .long("project_name")
             .takes_value(true)
             .help("project name"))
-        .arg(Arg::with_name("template_name") // TODO : add subcommand custom input template
+        .arg(Arg::with_name("template_name")
             .required(false)
             .short("t")
             .long("template_name")
             .takes_value(true)
             .help("template name"))
+        .arg(Arg::with_name("upload_template")
+            .required(false)
+            .short("u")
+            .long("upload_template")
+            .takes_value(true)
+            .help("upload custom template")) // TODO add match for this case
+        .arg(Arg::with_name("use_template")
+            .required(false)
+            .short("U")
+            .long("use_template")
+            .takes_value(true)
+            .help("specify template name to use for ")) // TODO add match for this case
         .arg(Arg::with_name("view_name")
             .required(false)
             .short("v")
@@ -81,13 +94,18 @@ fn main() {
 
         }
 
-        // TODO : will incorporate subcommand to load new template name into system
-        // --> this also will require finding patterns within templates
+        // TODO : reimplement this function to incorporate using dot templates
         if let Some(template_name) = matches.value_of("template_name") {
-            match create_html_template(project_name, template_name) {
+            let dot_template_name = matches.value_of("use_template").unwrap_or_default();
+            match create_html_template(project_name, template_name, upload_template_name) {
                 Ok(msg) => println!("{}", msg),
                 Err(err) => println!("ERROR: could not create HTML template, {:?}", err),
             };
+        }
+
+        // TODO : implement the upload template function
+        if let Some(upload_template_name) = matches.value_of("upload_template") {
+            // TODO match fucntion call to upload new template
         }
 
         // TODO : see above for template param... needs to match specification
